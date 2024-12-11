@@ -2,3 +2,863 @@
 title: 'Create Organization'
 openapi: 'POST /api/v1/organization'
 ---
+
+openapi: 3.0.3
+info:
+  title: ONFOP API
+  description: ONFOP API Documentation
+  version: 0.0.1
+components:
+  schemas:
+    def-0:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            pages:
+              type: integer
+      title: paginationResponse
+    def-1:
+      type: object
+      properties:
+        id:
+          type: string
+      title: organizationParams
+    def-2:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tax_id:
+          type: string
+        country:
+          type: string
+        currency:
+          type: string
+        timezone:
+          type: string
+        settings:
+          type: object
+          properties:
+            fiscal_year_start:
+              type: string
+            expense_approval_threshold:
+              type: number
+            require_receipts:
+              type: boolean
+      title: organization
+    def-3:
+      type: object
+      properties:
+        organization_id:
+          type: string
+      title: categoryParam
+    def-4:
+      type: object
+      properties:
+        name:
+          type: string
+        organization_id:
+          type: string
+        parent_id:
+          type: string
+        is_active:
+          type: string
+      title: category
+    def-5:
+      type: object
+      properties:
+        organization_id:
+          type: string
+      title: projectParam
+    def-6:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      title: project
+    def-7:
+      type: object
+      properties:
+        category_id:
+          type: string
+        project_id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+          enum:
+            - USD
+            - EURO
+            - COP
+        period:
+          type: string
+          enum:
+            - MONTHLY
+            - QUARTERLY
+            - YEARLY
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+      title: budget
+    def-8:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        id:
+          type: string
+      title: budgetParam
+    def-9:
+      type: object
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+      title: expenseParam
+    def-10:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+          enum:
+            - USD
+            - EURO
+            - COP
+        date:
+          type: string
+          format: date
+        category_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+          nullable: true
+        description:
+          type: string
+        is_recurring:
+          type: boolean
+        metadata:
+          type: object
+          properties:
+            supplier:
+              type: string
+            invoice_number:
+              type: string
+      title: expense
+paths:
+  /api/v1/status:
+    get:
+      tags:
+        - Status
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organization:
+    post:
+      tags:
+        - Organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-2'
+                - type: object
+                  required:
+                    - name
+                    - tax_id
+                    - country
+                    - currency
+                    - timezone
+                    - settings
+                  properties:
+                    settings:
+                      type: object
+                      required:
+                        - fiscal_year_start
+                        - expense_approval_threshold
+                        - require_receipts
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+  /api/v1/organization/{id}:
+    get:
+      tags:
+        - Organizations
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    put:
+      tags:
+        - Organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-2'
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/def-2'
+    delete:
+      tags:
+        - Organizations
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/categories:
+    post:
+      tags:
+        - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-4'
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/def-4'
+    get:
+      tags:
+        - Categories
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: name
+          required: false
+        - schema:
+            type: string
+          in: query
+          name: parent_id
+          required: false
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/categories/{id}:
+    get:
+      tags:
+        - Categories
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    put:
+      tags:
+        - Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                parent_id:
+                  type: string
+                  format: uuid
+                is_active:
+                  type: boolean
+              additionalProperties: false
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/categories/tree:
+    get:
+      tags:
+        - Categories
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    delete:
+      tags:
+        - Categories
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/projects:
+    get:
+      tags:
+        - Projects
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: name
+          required: false
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    post:
+      tags:
+        - Projects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-6'
+                - type: object
+                  required:
+                    - name
+                    - description
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/def-6'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      organization_id:
+                        type: string
+  /api/v1/organizations/{organization_id}/projects/{id}:
+    get:
+      tags:
+        - Projects
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/budgets:
+    post:
+      tags:
+        - Budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-7'
+                - type: object
+                  required:
+                    - start_date
+                    - period
+                    - currency
+                    - amount
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/def-7'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+  /api/v1/organizations/{organization_id}/budgets/{id}/status:
+    get:
+      tags:
+        - Budgets
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  usage_pct:
+                    type: number
+                  amount:
+                    type: number
+                  amount_spent:
+                    type: number
+  /api/v1/organizations/{organization_id}/budgets/{id}/pause:
+    post:
+      tags:
+        - Budgets
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/def-7'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+  /api/v1/organizations/{organization_id}/budgets/{id}/resume:
+    post:
+      tags:
+        - Budgets
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/def-7'
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      status:
+                        type: string
+  /api/v1/organizations/{organization_id}/expenses:
+    post:
+      tags:
+        - Expenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/def-10'
+                - type: object
+                  required:
+                    - amount
+                    - currency
+                    - date
+                    - category_id
+                    - description
+                    - is_recurring
+                    - metadata
+                    - attachments
+                  properties:
+                    metadata:
+                      type: object
+                      required:
+                        - supplier
+                        - invoice_number
+                    attachments:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - file
+                          - type
+                          - name
+                        properties:
+                          file:
+                            type: string
+                          type:
+                            type: string
+                            pattern: ^[-\w]+/[-\w]+$
+                          name:
+                            type: string
+                        additionalProperties: false
+                    additionalProperties: false
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                  - created_at
+                  - attachment_upload_urls
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - INVOICE_REQUIRED
+                      - APPROVED
+                      - REJECTED
+                  created_at:
+                    type: string
+                    format: date-time
+                  attachment_upload_urls:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                    minItems: 1
+                additionalProperties: false
+    get:
+      tags:
+        - Expenses
+      parameters:
+        - schema:
+            type: string
+            format: date
+          in: query
+          name: start_date
+          required: false
+        - schema:
+            type: string
+            format: date
+          in: query
+          name: end_date
+          required: false
+        - schema:
+            type: string
+            format: uuid
+          in: query
+          name: category_id
+          required: false
+        - schema:
+            type: string
+            format: uuid
+          in: query
+          name: project_id
+          required: false
+        - schema:
+            type: string
+            enum:
+              - PENDING
+              - INVOICE_REQUIRED
+              - APPROVED
+              - REJECTED
+          in: query
+          name: status
+          required: false
+        - schema:
+            type: integer
+            minimum: 1
+          in: query
+          name: page
+          required: false
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/expenses/{id}:
+    put:
+      tags:
+        - Expenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0
+                description:
+                  type: string
+                  minLength: 1
+                date:
+                  type: string
+                  format: date
+                metadata:
+                  type: object
+                  properties:
+                    supplier:
+                      type: string
+                      minLength: 1
+                    invoice_number:
+                      type: string
+                      minLength: 1
+                  additionalProperties: false
+              additionalProperties: false
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+    delete:
+      tags:
+        - Expenses
+      parameters:
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: organization_id
+          required: true
+        - schema:
+            type: string
+            format: uuid
+          in: path
+          name: id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/documents:
+    post:
+      tags:
+        - Documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - payload
+                - attachment
+              properties:
+                payload:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                attachment:
+                  type: object
+        required: true
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+  /api/v1/organizations/{organization_id}/reports/expenses:
+    get:
+      tags:
+        - Reports
+      parameters:
+        - schema:
+            type: string
+            format: date
+          in: query
+          name: start_date
+          required: false
+        - schema:
+            type: string
+            format: date
+          in: query
+          name: end_date
+          required: false
+        - schema:
+            type: string
+            enum:
+              - category
+              - project
+          in: query
+          name: group_by
+          required: false
+        - schema:
+            type: string
+            enum:
+              - MONTHLY
+              - QUARTERLY
+              - YEARLY
+          in: query
+          name: period
+          required: false
+        - schema:
+            type: boolean
+          in: query
+          name: include_details
+          required: false
+        - schema:
+            type: string
+          in: path
+          name: organization_id
+          required: true
+      responses:
+        '200':
+          description: Default Response
+servers:
+  - url: http://localhost:8080
+    description: Local server
